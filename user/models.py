@@ -146,7 +146,7 @@ class User:
 
         return jsonify(
 
-            {'resssss' : f'Result ={full_name}'}
+            {'resssss' : f'{full_name}'}
             
             ) #returning key-value pair in json format
 
