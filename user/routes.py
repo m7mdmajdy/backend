@@ -39,6 +39,10 @@ def upload():
 @app.route('/user/save', methods=['POST','GET'])
 def save():
   return User().saveresult()
+  
+@app.route('/diseases', methods=['POST','GET'])
+def desInfo():
+  return User().desInfo()
 
 
 @app.route('/user/signout')
