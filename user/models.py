@@ -80,17 +80,17 @@ class User:
             numOfFiles=len(os.listdir('D:/dermascope backend/image/'))
             print("Num of files from get"+str(numOfFiles))
             image_path= "D:/dermascope backend/image/"+str(numOfFiles)+".jpg"
-            classes = {4: ('nv', ' melanocytic nevi'), 0: ('mel', 'melanoma'), 2 :('bkl', 'benign keratosis-like lesions'), 3:('bcc' , ' basal cell carcinoma'), 5: ('vasc', ' pyogenic granulomas and hemorrhage'), 6: ('akiec', 'Actinic keratoses and intraepithelial carcinomae'),  1: ('df', 'dermatofibroma')}
+            classes = {0: ('nv', ' melanocytic nevi'), 1: ('mel', 'melanoma'), 2: ('bkl', 'benign keratosis-like lesions'), 3: ('bcc' , ' basal cell carcinoma'), 4: ('akiec', 'Actinic keratoses and intraepithelial carcinomae'), 5: ('vasc', ' pyogenic granulomas and hemorrhage'), 6: ('df', 'dermatofibroma')}
             
-            model_path = "D:/dermascope backend/Skin_Cancer (1).hdf5"
+            model_path = "D:/dermascope backend/final.hdf5"
             
             #####################################################################################################################
             def create_model():
                 model = Sequential()
-                model.add(Conv2D(16, kernel_size = (3,3), input_shape = (28, 28, 3), activation = 'relu', padding = 'same'))
+                model.add(Conv2D(32, kernel_size = (3,3), input_shape = (80, 80, 3), activation = 'relu', padding = 'same'))
                 model.add(MaxPool2D(pool_size = (2,2)))
 
-                model.add(Conv2D(32, kernel_size = (3,3), activation = 'relu', padding = 'same'))
+                model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
                 model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
 
                 model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
@@ -102,7 +102,9 @@ class User:
                 model.add(Dense(64, activation = 'relu'))
                 model.add(Dense(32, activation='relu'))
                 model.add(Dense(7, activation='softmax'))
-                return model
+
+                return model;
+
 
 
 
@@ -116,7 +118,7 @@ class User:
 
 
             # # preparing image
-            img = image.load_img(image_path, target_size=(28, 28))
+            img = image.load_img(image_path, target_size=(80, 80))
             img_array = image.img_to_array(img)
             img_batch = np.expand_dims(img_array, axis=0)
             images = np.vstack([img_batch])
