@@ -20,7 +20,11 @@ class User:
     session['logged_in'] = True
     session['user'] = user
     return jsonify(user), 200
- 
+
+  def start_session2(self,disease):
+      session['disease'] = disease
+      print(disease)
+      return jsonify(disease), 200
   def signup(self):
     print(request.form)
     
@@ -42,13 +46,12 @@ class User:
       return jsonify({ "error": "Email address already in use" }), 400
       
     if db.users.insert_one(user):
-     # print (self.start_session(user))
+    # print (self.start_session(user))
       return self.start_session(user)
 
     #res=request.form.get('result')
     #db.users.update_one({"email":request.form.get('email')},{"$set":{"result":res}})
 
-       
   def signout(self):
     session.clear()
     return redirect('/')
@@ -80,8 +83,14 @@ class User:
             numOfFiles=len(os.listdir('D:/dermascope backend/image/'))
             print("Num of files from get"+str(numOfFiles))
             image_path= "D:/dermascope backend/image/"+str(numOfFiles)+".jpg"
-            classes = {0: ('nv', ' melanocytic nevi'), 1: ('mel', 'melanoma'), 2: ('bkl', 'benign keratosis-like lesions'), 3: ('bcc' , ' basal cell carcinoma'), 4: ('akiec', 'Actinic keratoses and intraepithelial carcinomae'), 5: ('vasc', ' pyogenic granulomas and hemorrhage'), 6: ('df', 'dermatofibroma')}
-            
+            classes = {4: ('nv', 'melanocytic nevi'),
+            0: ('mel', 'melanoma'),
+            2: ('bkl', 'benign keratosis-like lesions'),
+            3: ('bcc' , 'basal cell carcinoma'),
+            5: ('vasc', 'pyogenic granulomas and hemorrhage'),
+            6: ('akiec', 'Actinic keratoses and intraepithelial carcinomae'),
+            1: ('df', 'dermatofibroma')}
+              
             model_path = "D:/dermascope backend/final.hdf5"
             
             #####################################################################################################################
@@ -103,9 +112,7 @@ class User:
                 model.add(Dense(32, activation='relu'))
                 model.add(Dense(7, activation='softmax'))
 
-                return model;
-
-
+                return model
 
 
 
@@ -143,7 +150,7 @@ class User:
             #model_path = r"E:\Magdy\4th grade\appp\Skin_Cancer.h5"
             #model = load_model(model_path)
             
-           # if full_name=='melanoma':
+          # if full_name=='melanoma':
             #  desData='Pigmented lesions of the skin are commonly called freckles. They include solar lentigo, congenital nevi, mucosal nevi, and special nevi of the palms and soles. This activity will help to differentiate the various pedal nevi from acral lentiginous melanoma clinically. Plantar melanomas are characteristically late to be diagnosed, have a poorer response to treatment, and have a significantly higher mortality rate when compared to more proximal melanomas'
 
         return jsonify(
@@ -154,8 +161,22 @@ class User:
 
   def saveresult(self):
   #  result=request.form.get('result')
-     res=request.form.get('image')  
-     db.users.update_one({"email":request.form.get('email')},{"$set":{"result":res}})
-     return jsonify({ "result11": "result is saved"
+      res=request.form.get('image')  
+      db.users.update_one({"email":request.form.get('email')},{"$set":{"result":res}})
+      return jsonify({ "result11": "result is saved"})
+
+
+
+  def desInfo(self):
+      diseases = db.disease.find_one({
+      "name": request.form.get('disease')
       })
- 
+      res=request.form.get('disease')
+      print(res)
+      print("This is disease from desInfo")
+      print(diseases)
+      return self.start_session2(diseases)
+
+
+
+
