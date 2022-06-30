@@ -23,10 +23,8 @@ class User:
 
   def start_session2(self,disease):
       session['disease'] = disease
-      print(disease)
       return jsonify(disease), 200
   def signup(self):
-    print(request.form)
     
     #redirect('/user/signup/detect')
 
@@ -36,6 +34,9 @@ class User:
       "name": request.form.get('name'),
       "email": request.form.get('email'),
       "password": request.form.get('password'),
+      "phone":request.form.get('phone'),
+      "bdate":request.form.get('bdate'),
+      "image":" ",
       "result":" " 
     }
     # Encrypt the password
@@ -91,38 +92,39 @@ class User:
             6: ('akiec', 'Actinic keratoses and intraepithelial carcinomae'),
             1: ('df', 'dermatofibroma')}
               
-            model_path = "D:/dermascope backend/final.hdf5"
+            model_path = "D:/dermascope backend/Skin_Cancer (1).hdf5"
             
             #####################################################################################################################
-            def create_model():
-                model = Sequential()
-                model.add(Conv2D(32, kernel_size = (3,3), input_shape = (80, 80, 3), activation = 'relu', padding = 'same'))
-                model.add(MaxPool2D(pool_size = (2,2)))
+            # def create_model():
+            #     model = Sequential()
+            #     model.add(Conv2D(32, kernel_size = (3,3), input_shape = (80, 80, 3), activation = 'relu', padding = 'same'))
+            #     model.add(MaxPool2D(pool_size = (2,2)))
 
-                model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
-                model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
+            #     model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
+            #     model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
 
-                model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
-                model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
-                model.add(Conv2D(128, kernel_size = (3,3), activation = 'relu', padding = 'same'))
-                model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
+            #     model.add(Conv2D(64, kernel_size = (3,3), activation = 'relu', padding = 'same'))
+            #     model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
+            #     model.add(Conv2D(128, kernel_size = (3,3), activation = 'relu', padding = 'same'))
+            #     model.add(MaxPool2D(pool_size = (2,2), padding = 'same'))
 
-                model.add(Flatten())
-                model.add(Dense(64, activation = 'relu'))
-                model.add(Dense(32, activation='relu'))
-                model.add(Dense(7, activation='softmax'))
+            #     model.add(Flatten())
+            #     model.add(Dense(64, activation = 'relu'))
+            #     model.add(Dense(32, activation='relu'))
+            #     model.add(Dense(7, activation='softmax'))
 
-                return model
+            #     return model
 
 
 
-            def load_trained_model(model_path):
-                model = create_model()   
-                model.load_weights(model_path)
-                return model
+            # def load_trained_model(model_path):
+            #     model = create_model()   
+            #     model.load_weights(model_path)
+            #     return model
 
-            model = load_trained_model(model_path)
+            # model = load_trained_model(model_path)
 
+            model = load_model(model_path)
 
             # # preparing image
             img = image.load_img(image_path, target_size=(80, 80))
@@ -133,29 +135,36 @@ class User:
             #predict image
             classe = model.predict(images)
             classe = classe[0]
-            print(classe)
             max_prob = max(classe)
-            print(max_prob)
 
-            if max_prob>0.80:
+            if max_prob>0.75:
+                pridiction = "70%"
                 class_ind = list(classe).index(max_prob)
                 class_name = classes[class_ind]
                 # short_name = class_name[0]
                 full_name = class_name[1]
-                print(full_name)
             else:
-
-                full_name = 'No Disease detected' #if confidence is less than 80 percent then "No disease" 
+                class_ind = list(classe).index(max_prob)
+                class_name = classes[class_ind]
+                # short_name = class_name[0]
+                full_name = class_name[1]
+                pridiction = round(max_prob*100)
+                
 ########################################################################################################################
             #model_path = r"E:\Magdy\4th grade\appp\Skin_Cancer.h5"
             #model = load_model(model_path)
             
           # if full_name=='melanoma':
             #  desData='Pigmented lesions of the skin are commonly called freckles. They include solar lentigo, congenital nevi, mucosal nevi, and special nevi of the palms and soles. This activity will help to differentiate the various pedal nevi from acral lentiginous melanoma clinically. Plantar melanomas are characteristically late to be diagnosed, have a poorer response to treatment, and have a significantly higher mortality rate when compared to more proximal melanomas'
-
+        print(pridiction)
+        print(full_name)
         return jsonify(
 
-            {'resssss' : f'{full_name}'}
+          
+            {'resssss' : f'{full_name}',
+              'percent': f'{pridiction}'
+            }
+            
             
             ) #returning key-value pair in json format
 
@@ -163,18 +172,13 @@ class User:
   #  result=request.form.get('result')
       res=request.form.get('image')  
       db.users.update_one({"email":request.form.get('email')},{"$set":{"result":res}})
+ 
       return jsonify({ "result11": "result is saved"})
-
-
 
   def desInfo(self):
       diseases = db.disease.find_one({
       "name": request.form.get('disease')
       })
-      res=request.form.get('disease')
-      print(res)
-      print("This is disease from desInfo")
-      print(diseases)
       return self.start_session2(diseases)
 
 
